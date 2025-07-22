@@ -1,0 +1,1 @@
+yarn add -D eslint @eslint/eslintrc eslint-config-airbnb-base eslint-config-airbnb-typescript eslint-config-prettier @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-import eslint-plugin-jsdoc eslint-plugin-promise eslint-plugin-vue eslint-plugin-vuejs-accessibility eslint-plugin-storybook prettier
