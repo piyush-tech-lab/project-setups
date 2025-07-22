@@ -1,0 +1,260 @@
+import { FlatCompat } from "@eslint/eslintrc";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// mimic CommonJS variables -- not needed if using CommonJS
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+export default [
+  // mimic ESLintRC-style extends
+  ...compat.extends("airbnb-base", "eslint-config-prettier", "plugin:promise/recommended"),
+
+  // mimic environments
+  ...compat.env({
+    browser: true,
+  }),
+
+  // mimic plugins
+  ...compat.plugins("jsdoc", "promise"),
+
+  // mimic config
+  ...compat.config({
+    ignorePatterns: [
+      "node_modules",
+      "dist",
+      "build",
+      ".yarn",
+      "coverage",
+      "*.config.js",
+      "*.config.ts",
+      "vite.config.*",
+      "eslint.config.js",
+    ],
+
+    settings: {
+      "import/extensions": [".ts", ".js", ".vue"],
+      "import/resolver": {
+        alias: {
+          extensions: [".js", ".jsx", ".vue", ".ts", ".tsx"],
+          map: [
+            ["@/", "./src/"],
+          ],
+        },
+        typescript: {
+          project: "./tsconfig.app.json",
+        },
+      },
+    },
+
+    rules: {
+      "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          js: "never",
+          ts: "never",
+          vue: "always", // Allow .vue extensions
+        },
+      ],
+      "import/no-extraneous-dependencies": "off",
+      "arrow-body-style": "off", // Conflicts with prettier
+      "import/no-cycle": [2, { ignoreExternal: false, maxDepth: 3 }],
+      "import/no-named-as-default": "off", // Conflicts with Vue SFC
+      "import/no-named-as-default-member": "off", // Conflicts with Vue SFC
+      "import/order": [
+        "error",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            ["sibling", "parent"],
+            "index",
+            "unknown",
+          ],
+          "newlines-between": "always",
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
+      "sort-imports": 0, // Disable due to no autofix, now handled by import/order
+      "promise/always-return": "off",
+      "no-underscore-dangle": "off", // Allow underscore prefix for intentionally unused vars
+    },
+
+    overrides: [
+      {
+        files: ["**/*.js", "**/*.cjs"],
+        extends: ["plugin:jsdoc/recommended"],
+        parserOptions: {
+          extraFileExtensions: [".js", ".cjs"],
+          parser: "espree",
+        },
+      },
+      {
+        extends: [
+          "plugin:@typescript-eslint/recommended",
+          "plugin:jsdoc/recommended-typescript-error",
+          "eslint-config-prettier",
+        ],
+        parser: "@typescript-eslint/parser",
+        parserOptions: {
+          parser: "@typescript-eslint/parser",
+          project: "./tsconfig.app.json",
+          warnOnUnsupportedTypeScriptVersion: false,
+        },
+        rules: {
+          "import/no-extraneous-dependencies": "off",
+          "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+              js: "never",
+              ts: "never",
+              vue: "always", // Allow .vue extensions
+            },
+          ],
+          "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+              argsIgnorePattern: "^_",
+              varsIgnorePattern: "^_",
+              caughtErrorsIgnorePattern: "^_",
+            },
+          ],
+          // Disabled typescript rules for performance reasons. Takes ms to check files without type checking. Takes 4s to check 1 file with type checking.
+          "@typescript-eslint/dot-notation": "off",
+          "@typescript-eslint/no-implied-eval": "off",
+          "@typescript-eslint/no-throw-literal": "off",
+          "@typescript-eslint/return-await": "off",
+          "@typescript-eslint/await-thenable": "off",
+          "@typescript-eslint/no-base-to-string": "off",
+          "@typescript-eslint/no-duplicate-type-constituents": "off",
+          "@typescript-eslint/no-floating-promises": "off",
+          "@typescript-eslint/no-misused-promises": "off",
+          "@typescript-eslint/no-redundant-type-constituents": "off",
+          "@typescript-eslint/no-unnecessary-type-assertion": "off",
+          "@typescript-eslint/no-unsafe-argument": "off",
+          "@typescript-eslint/no-unsafe-assignment": "off",
+          "@typescript-eslint/no-unsafe-call": "off",
+          "@typescript-eslint/no-unsafe-enum-comparison": "off",
+          "@typescript-eslint/no-unsafe-member-access": "off",
+          "@typescript-eslint/no-unsafe-return": "off",
+          "@typescript-eslint/restrict-plus-operands": "off",
+          "@typescript-eslint/restrict-template-expressions": "off",
+          "@typescript-eslint/unbound-method": "off",
+          "@typescript-eslint/no-for-in-array": "off",
+          "@typescript-eslint/non-nullable-type-assertion-style": "off",
+          "@typescript-eslint/prefer-find": "off",
+          "@typescript-eslint/prefer-includes": "off",
+          "@typescript-eslint/prefer-nullish-coalescing": "off",
+          "@typescript-eslint/prefer-optional-chain": "off",
+          "@typescript-eslint/prefer-regexp-exec": "off",
+          "@typescript-eslint/prefer-string-starts-ends-with": "off",
+          "@typescript-eslint/prefer-for-of": "error",
+          // Turn off base rules that are covered by TypeScript
+          "no-unused-vars": "off",
+          "no-undef": "off",
+        },
+        plugins: ["@typescript-eslint", "jsdoc"],
+        files: ["**/*.ts", "**/*.vue"], // must include nested overrides patterns
+        overrides: [
+          {
+            extends: ["plugin:vue/recommended", "plugin:vuejs-accessibility/recommended", "eslint-config-prettier"],
+            files: ["**/*.vue"],
+            parser: "vue-eslint-parser",
+            parserOptions: {
+              parser: "@typescript-eslint/parser",
+              project: "./tsconfig.app.json",
+              extraFileExtensions: [".vue"],
+              warnOnUnsupportedTypeScriptVersion: false,
+            },
+            plugins: ["vue", "vuejs-accessibility"],
+            rules: {
+              "vue/match-component-file-name": [
+                "warn",
+                {
+                  extensions: ["vue"],
+                  shouldMatchCase: true,
+                },
+              ],
+              "vue/valid-v-for": "off",
+              "@typescript-eslint/dot-notation": "off", // Has conflicts with typescript compiler
+              "vue/require-expose": "off", // Incompatible with vue 3 options API + typescript.
+              "vue/block-lang": [
+                "error",
+                {
+                  script: {
+                    lang: "ts",
+                  },
+                },
+              ],
+              "vue/block-tag-newline": "warn",
+              "vue/custom-event-name-casing": "warn",
+              "vue/define-emits-declaration": ["warn", "type-based"],
+              "vue/define-macros-order": "warn",
+              "vue/html-button-has-type": "error",
+              "vue/html-comment-content-newline": "warn",
+              "vue/html-comment-content-spacing": "warn",
+              "vue/html-comment-indent": "warn",
+              "vue/match-component-import-name": "warn",
+              "vue/new-line-between-multi-line-property": "warn",
+              "vue/next-tick-style": "warn",
+              "vue/no-boolean-default": "warn",
+              "vue/no-duplicate-attr-inheritance": "error",
+              "vue/no-empty-component-block": "warn",
+              "vue/no-multiple-objects-in-class": "warn",
+              "vue/no-ref-object-reactivity-loss": "error",
+              "vue/no-required-prop-with-default": "warn",
+              "vue/no-restricted-call-after-await": "warn",
+              "vue/no-restricted-custom-event": [
+                "error",
+                {
+                  event: "input",
+                  message: "If you intend a prop for v-model, it should be 'update:modelValue' in Vue 3.",
+                  suggest: "update:modelValue",
+                },
+              ],
+              "vue/no-restricted-props": [
+                "error",
+                {
+                  name: "value",
+                  message: "If you intend a prop for v-model, it should be 'modelValue' in Vue 3.",
+                  suggest: "modelValue",
+                },
+              ],
+              "vue/no-root-v-if": "warn",
+              "vue/no-static-inline-styles": "warn",
+              "vue/no-template-target-blank": "warn",
+              "vue/no-this-in-before-route-enter": "error",
+              "vue/no-undef-components": [
+                "error",
+                {
+                  ignorePatterns: ["RouterLink", "RouterView", "HelloWorld"],
+                },
+              ],
+              "vue/padding-line-between-blocks": "warn",
+              "vue/padding-line-between-tags": "warn",
+              "vue/prefer-prop-type-boolean-first": "error",
+              "vue/prefer-separate-static-class": "warn",
+              "vue/prefer-true-attribute-shorthand": "warn",
+              "vue/require-direct-export": "warn",
+              "vue/require-prop-comment": "warn",
+              "vue/v-for-delimiter-style": ["error", "in"],
+              "vue/v-on-handler-style": "off",
+              // Allow single word component names for now
+              "vue/multi-word-component-names": "off",
+            },
+          },
+        ],
+      },
+    ],
+  }),
+];
